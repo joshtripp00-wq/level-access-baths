@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LAB Estimate Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script>
+const SUPABASE_URL = 'https://waqfuslrxqhnusazgiwr.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndhcWZ1c2xyeHFobnVzYXpnaXdyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzNzMyOTMsImV4cCI6MjA5NDk0OTI5M30.wob5qhI6e2iZ2xjZAC51x3vMlMqp9sOx5VMD2HPEX4M';
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --black: #0d0d0d; --graphite: #1a1a1a; --steel: #2a2a2a;
+  --border: #333; --muted: #555; --mid: #888; --light: #ccc; --white: #f4f4f0;
+  --accent: #c8a96e; --accent-dim: #8a7048; --red: #c0392b; --green: #27ae60;
+  --navy: #1a2744;
+}
+@media print {
+  body { background: white !important; }
+  .no-print { display: none !important; }
+  .page { box-shadow: none !important; }
+  :root { --black:#fff;--graphite:#fff;--steel:#f5f5f5;--border:#ccc;--muted:#888;--mid:#555;--light:#333;--white:#111;--accent:#8a6020;--accent-dim:#8a6020; }
+  input,textarea,select { border-color: #ccc !important; }
+}
+body { background: #111; font-family: 'DM Sans', sans-serif; color: var(--white); min-height: 100vh; padding: 2rem 1rem 4rem; }
+.page { max-width: 960px; margin: 0 auto; background: var(--graphite); border: 1px solid var(--border); box-shadow: 0 8px 60px rgba(0,0,0,.6); }
+
+/* ── TOP ADMIN BAR ── */
+.admin-bar { background: var(--navy); padding: 10px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid var(--accent); }
+.admin-bar-left { display: flex; align-items: center; gap: 16px; }
+.admin-bar select { background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.2); color: #fff; font-family: 'DM Sans', sans-serif; font-size: 13px; padding: 7px 12px; border-radius: 6px; outline: none; min-width: 240px; }
+.admin-bar select option { background: var(--navy); }
+.admin-bar-label { font-family: 'DM Mono', monospace; font-size: 0.6rem; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.5); }
+.admin-bar-right { display: flex; gap: 8px; }
+.bar-btn { font-family: 'DM Mono', monospace; font-size: 0.62rem; letter-spacing: .12em; text-transform: uppercase; padding: 8px 18px; border: 1px solid; cursor: pointer; transition: all .15s; border-radius: 4px; }
+.bar-btn-ghost { background: none; border-color: rgba(255,255,255,.2); color: rgba(255,255,255,.6); }
+.bar-btn-ghost:hover { border-color: rgba(255,255,255,.5); color: #fff; }
+.bar-btn-primary { background: var(--accent); border-color: var(--accent); color: var(--black); font-weight: 700; }
+.bar-btn-primary:hover { background: #dfc080; }
+.bar-btn-back { background: none; border-color: rgba(255,255,255,.2); color: rgba(255,255,255,.6); text-decoration: none; display: inline-flex; align-items: center; gap: 6px; }
+.bar-btn-back:hover { color: #fff; border-color: rgba(255,255,255,.5); }
+
+/* ── HEADER ── */
+.header { background: var(--black); border-bottom: 2px solid var(--accent); display: grid; grid-template-columns: 1fr auto; align-items: end; padding: 2.2rem 2.4rem 1.6rem; gap: 1rem; }
+.brand-tag { font-family: 'DM Mono', monospace; font-size: .6rem; letter-spacing: .22em; color: var(--accent); text-transform: uppercase; margin-bottom: .4rem; }
+.brand-name { font-family: 'Bebas Neue', sans-serif; font-size: 3.2rem; letter-spacing: .04em; line-height: 1; color: var(--white); }
+.brand-sub { font-size: .72rem; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); margin-top: .3rem; }
+.doc-block { text-align: right; }
+.doc-label { font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; letter-spacing: .12em; color: var(--accent); }
+.doc-meta { font-family: 'DM Mono', monospace; font-size: .7rem; color: var(--mid); margin-top: .3rem; line-height: 1.7; }
+.doc-meta span { color: var(--light); }
+
+/* ── SECTIONS ── */
+.section { padding: 1.8rem 2.4rem; border-bottom: 1px solid var(--border); }
+.section:last-child { border-bottom: none; }
+.section-header { display: flex; align-items: center; gap: .8rem; margin-bottom: 1.4rem; }
+.section-num { font-family: 'DM Mono', monospace; font-size: .6rem; color: var(--accent-dim); letter-spacing: .1em; }
+.section-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.05rem; letter-spacing: .14em; color: var(--light); }
+.section-rule { flex: 1; height: 1px; background: var(--steel); }
+
+/* ── GRID ── */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+.grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 1rem; }
+.span-2 { grid-column: span 2; }
+.span-3 { grid-column: span 3; }
+
+/* ── FIELDS ── */
+.field { display: flex; flex-direction: column; gap: .35rem; }
+.field label { font-family: 'DM Mono', monospace; font-size: .6rem; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+.field input, .field select, .field textarea { background: var(--steel); border: 1px solid var(--border); color: var(--white); font-family: 'DM Sans', sans-serif; font-size: .85rem; padding: .55rem .75rem; outline: none; transition: border-color .15s; -webkit-appearance: none; }
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--accent); }
+.field textarea { resize: vertical; min-height: 72px; line-height: 1.5; }
+.field select option { background: var(--steel); }
+
+/* ── LINE ITEMS TABLE ── */
+.items-table { width: 100%; border-collapse: collapse; }
+.items-table thead tr { border-bottom: 1px solid var(--accent-dim); }
+.items-table th { font-family: 'DM Mono', monospace; font-size: .58rem; letter-spacing: .16em; text-transform: uppercase; color: var(--accent-dim); padding: .4rem .6rem; text-align: left; font-weight: 500; }
+.items-table th.right { text-align: right; }
+.items-table tbody tr { border-bottom: 1px solid var(--steel); }
+.items-table td { padding: .45rem .4rem; vertical-align: middle; }
+.items-table td input, .items-table td select { background: transparent; border: none; border-bottom: 1px solid transparent; color: var(--white); font-family: 'DM Sans', sans-serif; font-size: .82rem; padding: .25rem .3rem; width: 100%; outline: none; transition: border-color .15s; }
+.items-table td input:focus, .items-table td select:focus { border-bottom-color: var(--accent); }
+.items-table td input.right, .items-table td.right { text-align: right; }
+.items-table td .computed { font-family: 'DM Mono', monospace; font-size: .78rem; color: var(--light); text-align: right; display: block; padding: .25rem .3rem; }
+.items-table td .del-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 1rem; line-height: 1; padding: .2rem .4rem; transition: color .15s; }
+.items-table td .del-btn:hover { color: var(--red); }
+.add-row-btn { display: inline-flex; align-items: center; gap: .5rem; margin-top: 1rem; background: none; border: 1px dashed var(--steel); color: var(--muted); font-family: 'DM Mono', monospace; font-size: .65rem; letter-spacing: .12em; text-transform: uppercase; padding: .5rem 1rem; cursor: pointer; transition: all .15s; }
+.add-row-btn:hover { border-color: var(--accent-dim); color: var(--accent); }
+
+/* ── TOTALS ── */
+.totals-block { border: 1px solid var(--border); }
+.totals-row { display: flex; justify-content: space-between; align-items: center; padding: .65rem 1rem; border-bottom: 1px solid var(--steel); font-size: .82rem; }
+.totals-row:last-child { border-bottom: none; }
+.totals-row .t-label { font-family: 'DM Mono', monospace; font-size: .62rem; letter-spacing: .14em; text-transform: uppercase; color: var(--mid); }
+.totals-row .t-val { font-family: 'DM Mono', monospace; font-size: .85rem; color: var(--light); }
+.totals-row.grand { background: var(--black); border-top: 1px solid var(--accent); }
+.totals-row.grand .t-label { font-family: 'Bebas Neue', sans-serif; font-size: .95rem; letter-spacing: .14em; color: var(--accent); }
+.totals-row.grand .t-val { font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem; color: var(--accent); }
+
+/* ── UPCHARGE ROWS ── */
+.upcharge-row { display: grid; grid-template-columns: 1fr 110px auto; gap: .5rem; align-items: center; }
+.upcharge-row input[type=text] { background: var(--steel); border: 1px solid var(--border); color: var(--white); font-family: 'DM Sans', sans-serif; font-size: .82rem; padding: .45rem .65rem; outline: none; }
+.upcharge-row input[type=text]:focus { border-color: var(--accent); }
+.upcharge-row input[type=number] { background: var(--steel); border: 1px solid var(--border); color: var(--white); font-family: 'DM Mono', monospace; font-size: .82rem; padding: .45rem .5rem; outline: none; width: 100%; text-align: right; }
+.upcharge-row input[type=number]:focus { border-color: var(--accent); }
+
+/* ── SIGNATURE ── */
+.sig-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-top: 1rem; }
+.sig-box { border-top: 1px solid var(--muted); padding-top: .5rem; }
+.sig-label { font-family: 'DM Mono', monospace; font-size: .58rem; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+.sig-line { min-height: 36px; }
+
+/* ── INCLUSION TAG ── */
+.inclusion-tag { font-family: 'DM Mono', monospace; font-size: .62rem; letter-spacing: .08em; color: var(--mid); background: var(--steel); border: 1px solid var(--border); padding: .25rem .6rem; white-space: nowrap; }
+
+/* ── DISCOUNT ROW ── */
+.disc-row { display: flex; align-items: center; gap: .8rem; }
+.disc-row input { width: 80px; }
+.disc-row select { width: 80px; }
+
+/* ── TOAST ── */
+.toast { position: fixed; bottom: 24px; right: 24px; background: var(--navy); color: #fff; padding: 13px 20px; border-radius: 8px; font-size: 14px; font-weight: 500; box-shadow: 0 8px 32px rgba(0,0,0,.4); z-index: 9999; transform: translateY(80px); opacity: 0; transition: all .3s; pointer-events: none; }
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.success { border-left: 3px solid var(--green); }
+.toast.error { border-left: 3px solid var(--red); }
+
+@media(max-width:768px) {
+  .grid-2,.grid-3,.grid-4 { grid-template-columns: 1fr; }
+  .span-2,.span-3 { grid-column: 1; }
+  .sig-grid { grid-template-columns: 1fr; }
+  .header { grid-template-columns: 1fr; }
+  .section { padding: 1.2rem 1rem; }
+  .admin-bar { flex-direction: column; gap: 10px; align-items: flex-start; }
+}
+</style>
+</head>
+<body>
+
+<!-- ADMIN BAR -->
+<div class="admin-bar no-print">
+  <div class="admin-bar-left">
+    <a href="/portal.html" class="bar-btn bar-btn-back">← Portal</a>
+    <div>
+      <div class="admin-bar-label">Customer</div>
+      <select id="customer-select" onchange="onCustomerSelect(this)">
+        <option value="">— Select customer —</option>
+      </select>
+    </div>
+  </div>
+  <div class="admin-bar-right">
+    <button class="bar-btn bar-btn-ghost no-print" onclick="window.print()">Print / PDF</button>
+    <button class="bar-btn bar-btn-ghost no-print" onclick="clearForm()">Reset</button>
+    <button class="bar-btn bar-btn-primary no-print" onclick="saveToPortal()">Save to Portal →</button>
+  </div>
+</div>
+
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div style="display:flex;align-items:center;gap:0">
+      <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMTAgNzIiIHdpZHRoPSIxMTAiIGhlaWdodD0iNzIiPgogIDx0ZXh0IHg9IjIiIHk9IjY2IiBmb250LWZhbWlseT0iR2VvcmdpYSwgJ1RpbWVzIE5ldyBSb21hbicsIHNlcmlmIiBmb250LXNpemU9IjY4IiBmb250LXdlaWdodD0iNDAwIiBmaWxsPSIjZjRmNGYwIj5MPC90ZXh0PgogIDx0ZXh0IHg9IjMzIiB5PSI2NiIgZm9udC1mYW1pbHk9Ikdlb3JnaWEsICdUaW1lcyBOZXcgUm9tYW4nLCBzZXJpZiIgZm9udC1zaXplPSI2OCIgZm9udC13ZWlnaHQ9IjQwMCIgZmlsbD0iI2M4YTk2ZSI+QTwvdGV4dD4KICA8dGV4dCB4PSI2NyIgeT0iNjYiIGZvbnQtZmFtaWx5PSJHZW9yZ2lhLCAnVGltZXMgTmV3IFJvbWFuJywgc2VyaWYiIGZvbnQtc2l6ZT0iNjgiIGZvbnQtd2VpZ2h0PSI0MDAiIGZpbGw9IiNmNGY0ZjAiPkI8L3RleHQ+Cjwvc3ZnPg==" style="height:64px;width:auto;display:block;flex-shrink:0" alt="LAB">
+      <div style="width:1px;background:var(--accent);height:52px;margin:0 18px;flex-shrink:0"></div>
+      <div style="display:flex;flex-direction:column;gap:4px">
+        <div style="font-family:'DM Sans',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--white)">Level Access Baths</div>
+        <div style="font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.22em;text-transform:uppercase;color:var(--accent)">Live Without Limits</div>
+        <div style="font-family:'DM Mono',monospace;font-size:.56rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:2px">Omaha / Council Bluffs</div>
+      </div>
+    </div>
+    <div class="doc-block">
+      <div class="doc-label">Estimate</div>
+      <div class="doc-meta">
+        No. <span id="est-display">LAB-0001</span><br>
+        Date <span id="est-date"></span><br>
+        Valid <span>30 Days</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 01 ESTIMATE INFO -->
+  <div class="section">
+    <div class="section-header"><span class="section-num">01</span><span class="section-title">Estimate Info</span><div class="section-rule"></div></div>
+    <div class="grid-4">
+      <div class="field"><label>Estimate #</label><input type="text" id="estimate-num" value="LAB-0001" oninput="document.getElementById('est-display').textContent=this.value"></div>
+      <div class="field"><label>Date Issued</label><input type="date" id="date-issued"></div>
+      <div class="field"><label>Valid Until</label><input type="date" id="date-valid"></div>
+      <div class="field"><label>Status</label><select id="est-status"><option>Draft</option><option>Sent</option><option>Approved</option><option>Declined</option></select></div>
+    </div>
+  </div>
+
+  <!-- 02 CLIENT INFO -->
+  <div class="section">
+    <div class="section-header"><span class="section-num">02</span><span class="section-title">Client Information</span><div class="section-rule"></div></div>
+    <div class="grid-3" style="margin-bottom:1rem">
+      <div class="field span-2"><label>Full Name</label><input type="text" id="client-name" placeholder="First Last"></div>
+      <div class="field"><label>Relationship</label><select><option value="">— Select —</option><option>Homeowner</option><option>Adult Child / POA</option><option>Property Manager</option><option>Case Manager</option><option>VA Rep</option><option>Other</option></select></div>
+    </div>
+    <div class="grid-3" style="margin-bottom:1rem">
+      <div class="field"><label>Phone</label><input type="tel" id="client-phone" placeholder="(402) 000-0000"></div>
+      <div class="field"><label>Email</label><input type="email" id="client-email" placeholder="email@example.com"></div>
+      <div class="field"><label>Preferred Contact</label><select><option>Phone Call</option><option>Text</option><option>Email</option></select></div>
+    </div>
+    <div class="grid-3">
+      <div class="field span-2"><label>Installation Address</label><input type="text" id="client-address" placeholder="123 Main St, City, NE 68102"></div>
+      <div class="field"><label>Referral Source</label><select><option value="">— Select —</option><option>OT / Therapist</option><option>Discharge Planner</option><option>Home Health Agency</option><option>VA / VASH</option><option>Past Client</option><option>Google</option><option>Facebook</option><option>Door Hanger / Flyer</option><option>Other</option></select></div>
+    </div>
+  </div>
+
+  <!-- 03 PROJECT DETAILS -->
+  <div class="section">
+    <div class="section-header"><span class="section-num">03</span><span class="section-title">Project Details</span><div class="section-rule"></div></div>
+    <div class="grid-3" style="margin-bottom:1rem">
+      <div class="field"><label>Project Type</label>
+        <select id="project-type" onchange="applyProjectPrice(this)">
+          <option value="">— Select Project Type —</option>
+          <option value="12000">Tub-to-Shower Conversion</option>
+          <option value="12000">Bathtub Replacement</option>
+          <option value="12000" data-bf="true">Barrier-Free Shower Install</option>
+          <option value="12000" data-bf="true">Roll-In Shower Install</option>
+          <option value="12000">Walk-In Shower Upgrade</option>
+          <option value="650">Grab Bar Package Only</option>
+          <option value="">Other</option>
+        </select>
+      </div>
+      <div class="field"><label>Bathroom Location</label><select><option>Main Floor</option><option>Master Suite</option><option>Basement</option><option>Upstairs</option><option>Other</option></select></div>
+      <div class="field"><label>Access Needs</label><select><option>Ambulatory</option><option>Walker / Rollator</option><option>Wheelchair Transfer</option><option>Full Roll-In</option></select></div>
+    </div>
+    <div class="grid-4" style="margin-bottom:1rem">
+      <div class="field"><label>Existing Tub / Shower</label><select><option>Standard Alcove Tub</option><option>Corner Tub</option><option>Garden / Soaking Tub</option><option>Stand-Up Shower</option><option>None</option></select></div>
+      <div class="field"><label>Tub Material <span id="upcharge-flag" style="display:none;color:var(--accent);font-size:.68rem;font-family:'DM Mono',monospace;letter-spacing:.1em;margin-left:.3rem">⚠ UPCHARGE</span></label>
+        <select id="tub-material" onchange="checkUpcharge(this)">
+          <option value="">— Unknown —</option><option value="fiberglass">Fiberglass / Plastic</option><option value="acrylic">Acrylic</option><option value="steel">Steel (porcelain-coated)</option><option value="cast_iron">Cast Iron / Metal ⚠</option><option value="na">N/A — No Tub</option>
+        </select>
+      </div>
+      <div class="field"><label>Existing Surround</label><select><option value="">— Unknown —</option><option>None / Open Studs</option><option>Acrylic / Fiberglass Surround</option><option>Tile on Drywall</option><option>Tile on Cement Board</option><option>Cultured Marble</option><option>Peel-and-Stick / Panel</option><option>Other</option></select></div>
+      <div class="field"><label>Wall Config</label><select><option>3-Wall Alcove</option><option>Corner (2-Wall)</option><option>Open / Neo-Angle</option><option>Other</option></select></div>
+    </div>
+    <div class="grid-4" style="margin-bottom:1rem">
+      <div class="field"><label>Approx. Opening W</label><input type="text" placeholder='e.g. 60"'></div>
+      <div class="field"><label>Approx. Opening H</label><input type="text" placeholder='e.g. 72"'></div>
+      <div class="field span-2"><label>Demo Notes</label><input type="text" placeholder="e.g. Cast iron — needs cutting, 2nd floor, tight hallway..."></div>
+    </div>
+    <div class="grid-2">
+      <div class="field"><label>Site Notes / Conditions</label><textarea placeholder="Stairs, tight hallway, second floor, old plumbing, etc."></textarea></div>
+      <div class="field"><label>Special Requirements</label><textarea placeholder="LOPA funding, VA grant, specific ADA specs, patient notes..."></textarea></div>
+    </div>
+  </div>
+
+  <!-- 04 UPGRADES -->
+  <div class="section">
+    <div class="section-header"><span class="section-num">04</span><span class="section-title">Upgrades &amp; Options</span><div class="section-rule"></div></div>
+    <div style="display:flex;align-items:center;gap:.6rem;padding:.6rem .9rem;background:var(--steel);border-left:3px solid var(--accent-dim);margin-bottom:1.4rem">
+      <span style="font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent-dim)">Included Standard</span>
+      <span style="font-size:.78rem;color:var(--mid)">Delta fixtures · standard shower head + wand combo · shower curtain rod</span>
+    </div>
+    <div class="grid-3" style="margin-bottom:1.2rem">
+      <div class="field"><label>Shelving / Storage</label>
+        <select id="shelf-type" onchange="toggleShelfFinish(this);applyShelfPrice(this)">
+          <option value="">None</option><option value="corner">Corner Shelf — +$175</option><option value="niche">Niche Insert — +$300</option>
+        </select>
+      </div>
+      <div class="field" id="shelf-finish-wrap" style="display:none"><label>Shelf / Niche Finish</label><select><option>Matte Black</option><option>White</option><option>Stainless</option></select></div>
+      <div id="shelf-spacer" style="display:none"></div>
+      <div class="field"><label>Entry / Enclosure</label>
+        <select id="door-type" onchange="toggleDoorStyle(this);applyDoorPrice(this)">
+          <option value="curtain">Curtain Rod (Included)</option><option value="door">Shower Door — Upgrade</option>
+        </select>
+      </div>
+      <div class="field" id="door-style-wrap" style="display:none"><label>Door Style</label><select><option>Sliding / Bypass</option><option>Pivot / Hinged</option><option>Frameless Pivot</option><option>Bi-Fold</option><option>Neo-Angle</option></select></div>
+      <div class="field" id="door-finish-wrap" style="display:none"><label>Door Finish</label><select><option>Chrome</option><option>Brushed Nickel</option><option>Matte Black</option><option>Oil-Rubbed Bronze</option></select></div>
+    </div>
+    <div class="grid-3">
+      <div class="field"><label>Seat / Bench</label>
+        <select id="seat-type" onchange="toggleSeatNotes(this);applySeatPrice(this)">
+          <option value="">None</option><option value="corner">Corner Seat — +$500</option><option value="fold">Fold-Down Seat — +$500</option><option value="bench">Full Bench Seat — +$500</option>
+        </select>
+      </div>
+      <div class="field" id="seat-notes-wrap" style="display:none"><label>Seat Notes</label><input type="text" placeholder="Placement, weight rating, finish preference..."></div>
+    </div>
+  </div>
+
+  <!-- 05 PRICING -->
+  <div class="section">
+    <div class="section-header"><span class="section-num">05</span><span class="section-title">Pricing</span><div class="section-rule"></div></div>
+    <div style="margin-bottom:1.6rem">
+      <div style="font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:.7rem">All-In Price Includes</div>
+      <div style="display:flex;flex-wrap:wrap;gap:.5rem">
+        <span class="inclusion-tag">Demo &amp; Tear-Out</span><span class="inclusion-tag">Haul-Away</span><span class="inclusion-tag">Liner System (Walls &amp; Base)</span><span class="inclusion-tag">All Materials</span><span class="inclusion-tag">Labor &amp; Installation</span><span class="inclusion-tag">Delta Fixtures</span><span class="inclusion-tag">Shower Head + Wand Combo</span><span class="inclusion-tag">Shower Curtain Rod</span><span class="inclusion-tag">Site Cleanup</span>
+      </div>
+    </div>
+    <div class="grid-2" style="align-items:start;gap:2rem">
+      <div>
+        <div style="margin-bottom:1.2rem">
+          <div style="font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:.5rem">Base Install Price</div>
+          <div style="display:flex;align-items:center;gap:.5rem">
+            <span style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--accent)">$</span>
+            <input type="number" id="base-price" min="0" step="0.01" placeholder="0.00" oninput="recalc()"
+              style="font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:.04em;background:transparent;border:none;border-bottom:2px solid var(--accent-dim);color:var(--white);padding:.2rem .3rem;width:200px;outline:none">
+          </div>
+        </div>
+        <div style="font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:.6rem">Upcharges</div>
+        <div id="upcharge-rows" style="display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem"></div>
+        <button class="add-row-btn no-print" onclick="addUpcharge()" style="margin-top:0">＋ Add Upcharge</button>
+      </div>
+      <div>
+        <div class="totals-block" style="margin-bottom:1.2rem">
+          <div class="totals-row"><span class="t-label">Base Price</span><span class="t-val" id="t-base">$0.00</span></div>
+          <div class="totals-row" id="t-upcharges-row" style="display:none"><span class="t-label">Upcharges</span><span class="t-val" id="t-upcharges">$0.00</span></div>
+          <div class="totals-row" id="t-lineitems-row" style="display:none"><span class="t-label">Add'l Charges</span><span class="t-val" id="t-lineitems">$0.00</span></div>
+          <div class="totals-row">
+            <div><span class="t-label">Discount</span>
+              <div class="disc-row" style="margin-top:.4rem">
+                <input type="number" min="0" id="disc-val" placeholder="0" oninput="recalc()" style="width:70px;background:var(--steel);border:1px solid var(--border);color:var(--white);padding:.3rem .4rem;font-size:.78rem;outline:none">
+                <select id="disc-type" onchange="recalc()" style="width:65px;background:var(--steel);border:1px solid var(--border);color:var(--white);padding:.3rem;font-size:.78rem;outline:none"><option value="pct">%</option><option value="flat">$</option></select>
+              </div>
+            </div>
+            <span class="t-val" id="t-discount">—</span>
+          </div>
+          <div class="totals-row grand"><span class="t-label">Total</span><span class="t-val" id="t-total">$0.00</span></div>
+        </div>
+        <div class="field" style="margin-bottom:1rem"><label>Deposit Required</label>
+          <div class="disc-row">
+            <input type="number" min="0" id="dep-val" placeholder="50" oninput="recalc()" style="width:70px;background:var(--steel);border:1px solid var(--border);color:var(--white);padding:.45rem .5rem;font-size:.82rem;outline:none">
+            <select id="dep-type" onchange="recalc()" style="background:var(--steel);border:1px solid var(--border);color:var(--white);padding:.45rem .5rem;font-size:.82rem;outline:none"><option value="pct">%</option><option value="flat">$</option></select>
+            <span class="t-val" id="t-deposit" style="margin-left:auto;font-size:.9rem">—</span>
+          </div>
+        </div>
+        <div class="field" style="margin-bottom:1rem"><label>Estimated Install Date</label><input type="date" id="install-date"></div>
+        <div class="field" style="margin-bottom:1rem">
+          <label>Est. Install Duration</label>
+          <div id="duration-display" style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:.06em;color:var(--white);border-bottom:2px solid var(--accent-dim);padding:.2rem .3rem .3rem">—</div>
+          <div id="duration-breakdown" style="font-family:'DM Mono',monospace;font-size:.6rem;color:var(--muted);margin-top:.35rem;line-height:1.7"></div>
+        </div>
+        <div class="field"><label>Payment Terms</label>
+          <select><option>50% Deposit / Balance at Completion</option><option>100% at Completion</option><option>100% Upfront</option><option>LOPA / Grant Funded</option><option>VA Funded</option><option>Custom</option></select>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADDITIONAL LINE ITEMS -->
+    <div style="margin-top:1.8rem;border-top:1px solid var(--border);padding-top:1.4rem">
+      <div style="font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-bottom:.8rem">Additional Charges <span style="color:var(--steel);font-size:.55rem;letter-spacing:.08em">— flooring, carpentry, permits, etc.</span></div>
+      <table class="items-table" id="items-table">
+        <thead><tr><th style="width:50%">Description</th><th style="width:15%">Qty</th><th style="width:18%">Unit Price</th><th style="width:12%" class="right">Subtotal</th><th style="width:5%"></th></tr></thead>
+        <tbody id="line-items"></tbody>
+      </table>
+      <button class="add-row-btn no-print" onclick="addRow()" style="margin-top:.8rem">＋ Add Line Item</button>
+    </div>
+  </div>
+
+  <!-- 06 NOTES -->
+  <div class="section">
+    <div class="section-header"><span class="section-num">06</span><span class="section-title">Notes</span><div class="section-rule"></div></div>
+    <div class="grid-2">
+      <div>
+        <div class="field" style="margin-bottom:1rem"><label>Internal Notes <span style="color:var(--muted);font-size:.55rem">(not printed)</span></label><textarea class="no-print" placeholder="Crew assignments, material orders, scheduling notes..."></textarea></div>
+        <div class="field"><label>Exclusions</label><textarea placeholder="Permits, drywall repair beyond backer, plumbing re-route..."></textarea></div>
+      </div>
+      <div class="field"><label>Notes for Customer</label><textarea id="customer-notes" style="min-height:140px" placeholder="Anything the customer should know about the job, timeline, prep required..."></textarea></div>
+    </div>
+  </div>
+
+  <!-- 07 AUTHORIZATION -->
+  <div class="section">
+    <div class="section-header"><span class="section-num">07</span><span class="section-title">Authorization</span><div class="section-rule"></div></div>
+    <p style="font-size:.75rem;color:var(--mid);line-height:1.7;margin-bottom:1.2rem">By signing below, the client authorizes Level Access Baths to perform the work described in this estimate at the stated price. This estimate is valid for 30 days from the date issued.</p>
+    <div class="sig-grid">
+      <div><div class="sig-box"><div class="sig-line"></div><div class="sig-label" style="margin-top:.4rem">Client Signature &amp; Date</div></div></div>
+      <div><div class="sig-box"><div class="sig-line"></div><div class="sig-label" style="margin-top:.4rem">LAB Representative &amp; Date</div></div></div>
+    </div>
+  </div>
+
+  <!-- ACTION BAR -->
+  <div class="action-bar no-print" style="display:flex;gap:1rem;justify-content:flex-end;padding:1.4rem 2.4rem;background:var(--black);border-top:1px solid var(--border)">
+    <button class="bar-btn bar-btn-ghost" onclick="window.print()">Print / Save PDF</button>
+    <button class="bar-btn bar-btn-ghost" onclick="clearForm()">Reset</button>
+    <button class="bar-btn bar-btn-primary" onclick="saveToPortal()">Save to Portal →</button>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+
+// ── SUPABASE ──
+let sb = null;
+let projects = [];
+let selectedProjectId = null;
+
+window.addEventListener('DOMContentLoaded', async () => {
+  initDates();
+  try {
+    sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const { data, error } = await sb.from('projects').select('id,customer_name,customer_email,address').order('created_at', { ascending: false });
+    if (data) {
+      projects = data;
+      const sel = document.getElementById('customer-select');
+      data.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p.id;
+        opt.textContent = (p.customer_name || p.customer_email) + (p.address ? ' — ' + p.address : '');
+        sel.appendChild(opt);
+      });
+    }
+  } catch(e) {
+    console.warn('Supabase not connected:', e.message);
+  }
+});
+
+function onCustomerSelect(sel) {
+  selectedProjectId = sel.value || null;
+  const project = projects.find(p => p.id === sel.value);
+  if (project) {
+    if (project.customer_name) document.getElementById('client-name').value = project.customer_name;
+    if (project.customer_email) document.getElementById('client-email').value = project.customer_email;
+    if (project.address) document.getElementById('client-address').value = project.address;
+  }
+}
+
+async function saveToPortal() {
+  if (!selectedProjectId) { toast('Select a customer first.', 'error'); return; }
+  const base = parseFloat(document.getElementById('base-price').value) || 0;
+  const ucTotal = upcharges.reduce((s,u) => s + (parseFloat(u.amt)||0), 0);
+  const liTotal = rows.reduce((s,r) => s + (parseFloat(r.price)||0) * (parseFloat(r.qty)||0), 0);
+  const discV = parseFloat(document.getElementById('disc-val').value) || 0;
+  const discT = document.getElementById('disc-type').value;
+  const subtotal = base + ucTotal + liTotal;
+  const disc = discT === 'pct' ? subtotal * (discV/100) : Math.min(discV, subtotal);
+  const total = subtotal - disc;
+  const installDate = document.getElementById('install-date').value;
+  const notes = document.getElementById('customer-notes').value.trim();
+  const projectType = document.getElementById('project-type');
+  const projectTypeName = projectType.options[projectType.selectedIndex]?.text?.replace(/ —.*/, '').trim() || '';
+
+  // Build line items array for portal
+  const lineItems = [];
+  if (base > 0) lineItems.push({ desc: projectTypeName || 'Installation', qty: 1, price: base });
+  upcharges.forEach(u => { if (u.desc && parseFloat(u.amt) > 0) lineItems.push({ desc: u.desc, qty: 1, price: parseFloat(u.amt) }); });
+  rows.forEach(r => { if (r.desc && parseFloat(r.price) > 0) lineItems.push({ desc: r.desc, qty: parseFloat(r.qty)||1, price: parseFloat(r.price) }); });
+
+  if (!sb) { toast('Not connected to Supabase.', 'error'); return; }
+
+  try {
+    // Save estimate to portal
+    const { error: estError } = await sb.from('estimates').upsert([{
+      project_id: selectedProjectId,
+      line_items: lineItems,
+      notes: notes,
+      total: total,
+      approved: false,
+      contract_signed: false,
+    }]);
+    if (estError) throw estError;
+
+    // Update project total and install date
+    const updates = { total, project_type: projectTypeName };
+    if (installDate) updates.install_date = installDate;
+    await sb.from('projects').update(updates).eq('id', selectedProjectId);
+
+    // Add timeline update
+    await sb.from('project_updates').insert([{
+      project_id: selectedProjectId,
+      status_type: 'estimate_sent',
+      message: 'Your estimate is ready to review in the portal.',
+      created_by: 'admin'
+    }]);
+
+    toast('Estimate saved to portal! Customer can now view and sign.', 'success');
+  } catch(e) {
+    toast('Error: ' + e.message, 'error');
+    console.error(e);
+  }
+}
+
+// ── PRICING CONSTANTS ──
+let upcharges = [], rows = [], ucUid = 0, rowUid = 0;
+window.ucIdProjectBFRef = null; window.ucIdCastIronRef = null;
+window.ucIdShelfRef = null; window.ucIdDoorRef = null; window.ucIdSeatRef = null;
+
+function setNamedUpcharge(idRef, desc, amt) {
+  const setter = idRef + 'Ref';
+  if (window[setter] != null) upcharges = upcharges.filter(u => u.id !== window[setter]);
+  if (amt > 0) { const id = ++ucUid; upcharges.push({id, desc, amt: String(amt)}); window[setter] = id; }
+  else window[setter] = null;
+  renderUpcharges();
+}
+
+const TASK_HOURS = {
+  base: { 'Tub-to-Shower Conversion':{days:4,label:'4-day install'},'Bathtub Replacement':{days:4,label:'4-day install'},'Barrier-Free Shower Install':{days:4,label:'4-day install'},'Roll-In Shower Install':{days:4,label:'4-day install'},'Walk-In Shower Upgrade':{days:4,label:'4-day install'},'Grab Bar Package Only':{days:.5,label:'Half day'} },
+  upcharges: { door:{hrs:1.5,label:'Shower door (1.5 hrs)'},corner:{hrs:.5,label:'Corner shelf (0.5 hr)'},niche:{hrs:.75,label:'Niche insert (0.75 hr)'},corner_seat:{hrs:1,label:'Corner seat (1 hr)'},fold:{hrs:1,label:'Fold-down seat (1 hr)'},bench:{hrs:1.5,label:'Bench seat (1.5 hrs)'},cast_iron:{hrs:2,label:'Cast iron tear-out (+2 hrs)'} }
+};
+
+function calcDuration() {
+  const typeEl = document.getElementById('project-type');
+  const typeName = typeEl?.options[typeEl.selectedIndex]?.text?.replace(/ —.*/,'').trim() || '';
+  const base = TASK_HOURS.base[typeName];
+  if (!base || !typeName) { document.getElementById('duration-display').textContent='—'; document.getElementById('duration-breakdown').textContent=''; return; }
+  let extraHrs = 0; const lines = [base.label + ' (core install)'];
+  const doorEl = document.getElementById('door-type'), shelfEl = document.getElementById('shelf-type');
+  const seatEl = document.getElementById('seat-type'), matEl = document.getElementById('tub-material');
+  if (doorEl?.value==='door')        { extraHrs+=TASK_HOURS.upcharges.door.hrs;       lines.push(TASK_HOURS.upcharges.door.label); }
+  if (shelfEl?.value==='corner')     { extraHrs+=TASK_HOURS.upcharges.corner.hrs;     lines.push(TASK_HOURS.upcharges.corner.label); }
+  if (shelfEl?.value==='niche')      { extraHrs+=TASK_HOURS.upcharges.niche.hrs;      lines.push(TASK_HOURS.upcharges.niche.label); }
+  if (seatEl?.value==='corner')      { extraHrs+=TASK_HOURS.upcharges.corner_seat.hrs;lines.push(TASK_HOURS.upcharges.corner_seat.label); }
+  if (seatEl?.value==='fold')        { extraHrs+=TASK_HOURS.upcharges.fold.hrs;       lines.push(TASK_HOURS.upcharges.fold.label); }
+  if (seatEl?.value==='bench')       { extraHrs+=TASK_HOURS.upcharges.bench.hrs;      lines.push(TASK_HOURS.upcharges.bench.label); }
+  if (matEl?.value==='cast_iron')    { extraHrs+=TASK_HOURS.upcharges.cast_iron.hrs;  lines.push(TASK_HOURS.upcharges.cast_iron.label); }
+  const totalDays = base.days + (extraHrs/8);
+  const rounded = Math.ceil(totalDays*2)/2;
+  const label = rounded<=1?'1 Day':rounded%1===0?`${rounded} Days`:`${Math.floor(rounded)}–${Math.ceil(rounded)} Days`;
+  document.getElementById('duration-display').textContent = label;
+  document.getElementById('duration-breakdown').innerHTML = lines.map(l=>'· '+l).join('<br>');
+}
+
+function applyProjectPrice(sel) {
+  const opt = sel.options[sel.selectedIndex];
+  const price = parseFloat(opt.value) || 0;
+  const isBF = opt.dataset.bf === 'true';
+  const bp = document.getElementById('base-price');
+  bp.value = price > 0 ? price : '';
+  setNamedUpcharge('ucIdProjectBF','Barrier-Free / Roll-In Upgrade', isBF ? 1200 : 0);
+  recalc(); calcDuration();
+}
+function applyCastIronUpcharge(val) { setNamedUpcharge('ucIdCastIron','Cast Iron / Metal Tear-Out', val==='cast_iron' ? 350 : 0); }
+function applyShelfPrice(sel) {
+  const map={corner:175,niche:300}, label={corner:'Corner Shelf',niche:'Niche Insert'};
+  const amt = map[sel.value]||0;
+  const finish = document.querySelector('#shelf-finish-wrap select');
+  const finishLabel = (finish && amt>0) ? ' — '+finish.value : '';
+  setNamedUpcharge('ucIdShelf', (label[sel.value]||'Shelf')+finishLabel, amt);
+  calcDuration();
+}
+function applyDoorPrice(sel) { setNamedUpcharge('ucIdDoor','Shower Door Upgrade', sel.value==='door' ? 1000 : 0); calcDuration(); }
+function applySeatPrice(sel) {
+  const label={corner:'Corner Seat',fold:'Fold-Down Seat',bench:'Full Bench Seat'};
+  setNamedUpcharge('ucIdSeat', label[sel.value]||'Seat', sel.value ? 500 : 0);
+  calcDuration();
+}
+function toggleShelfFinish(sel) {
+  const show = sel.value !== '';
+  document.getElementById('shelf-finish-wrap').style.display = show ? '' : 'none';
+  document.getElementById('shelf-spacer').style.display = show ? '' : 'none';
+  const finishSel = document.querySelector('#shelf-finish-wrap select');
+  if (finishSel) finishSel.onchange = () => applyShelfPrice(sel);
+}
+function toggleDoorStyle(sel) {
+  const show = sel.value === 'door';
+  document.getElementById('door-style-wrap').style.display = show ? '' : 'none';
+  document.getElementById('door-finish-wrap').style.display = show ? '' : 'none';
+}
+function toggleSeatNotes(sel) { document.getElementById('seat-notes-wrap').style.display = sel.value ? '' : 'none'; }
+function checkUpcharge(sel) {
+  document.getElementById('upcharge-flag').style.display = sel.value==='cast_iron' ? 'inline' : 'none';
+  applyCastIronUpcharge(sel.value); calcDuration();
+}
+
+// ── LINE ITEMS ──
+const TASK_CATALOG = [
+  {group:'Demo & Removal',items:['Tile Demo — Floor','Tile Demo — Walls','Drywall Removal','Vanity Removal','Toilet Removal & Reset','Medicine Cabinet Removal','Mirror Removal','Subfloor Demo','Door/Casing Removal','Exhaust Fan Removal']},
+  {group:'Flooring',items:['LVP Flooring Install','Ceramic Tile Flooring','Porcelain Tile Flooring','Subfloor Repair / Replace','Cement Board Underlayment','Floor Leveling / Skim Coat','Transition Strip','Heated Floor Mat Install']},
+  {group:'Walls & Waterproofing',items:['Cement Board Install','Drywall Hang & Finish','Green Board / Moisture Barrier','RedGard Waterproofing','Kerdi Membrane Install','Backer Board Tape & Mud','Wall Tile Install','Grout & Seal']},
+  {group:'Plumbing',items:['Drain Relocation','Supply Line Replacement','Shut-Off Valve Install','Pressure Balance Valve Upgrade','Handheld Showerhead Upgrade','Rain Head Add-On','Body Spray Install','Tub Spout Cap-Off','P-Trap Replacement','Hot/Cold Supply Rough-In']},
+  {group:'Electrical',items:['GFCI Outlet Install','Exhaust Fan Install','Exhaust Fan Upgrade','Light Fixture Swap','Recessed Light Install','Dimmer Switch','Heated Towel Bar Wiring']},
+  {group:'Fixtures & Hardware',items:['Vanity Install','Vessel Sink Install','Undermount Sink Install','Faucet Install','Toilet Install','Towel Bar Set Install','Toilet Paper Holder','Robe Hook','Shower Niche (Tile-In)','Mirror Install','Medicine Cabinet Install','Grab Bar Install — Single','Grab Bar Install — Set (3)','Fold-Down Shower Seat','Teak / Teak-Look Bench']},
+  {group:'Accessibility',items:['ADA Blocking / Backing in Walls','Roll-In Threshold Transition','Comfort Height Toilet','Offset Drain Repositioning','Handheld Wand on Slider Bar','Fold-Down Shower Seat — ADA','Grab Bar — Angled (ADA)','Grab Bar — Horizontal (ADA)','Grab Bar — Vertical (ADA)']},
+  {group:'Doors & Windows',items:['Bathroom Door Replace','Pocket Door Conversion','Barn Door Install','Window Trim / Casing','Privacy Window Film']},
+  {group:'Paint & Finish',items:['Bathroom Paint — Full','Ceiling Paint','Trim Paint','Caulk & Seal — Tub/Shower','Silicone Reseal']},
+  {group:'Cleanup & Misc',items:['Haul-Away — Extra Load','Dumpster Rental','Permit Fee','Inspection Fee','Travel / Fuel Surcharge','Custom / Other']},
+];
+
+function buildCatalogOptions() {
+  let html = '<option value="">— Select task or type below —</option>';
+  TASK_CATALOG.forEach(g => {
+    html += `<optgroup label="${g.group}">`;
+    g.items.forEach(item => { html += `<option value="${item}">${item}</option>`; });
+    html += '</optgroup>';
+  });
+  return html;
+}
+
+function addRow(desc='', qty=1, price='') { const id=++rowUid; rows.push({id,desc,qty,price}); renderRows(); }
+function removeRow(id) { rows=rows.filter(r=>r.id!==id); renderRows(); recalc(); }
+
+function renderRows() {
+  const tbody = document.getElementById('line-items');
+  tbody.innerHTML = '';
+  rows.forEach(r => {
+    const sub = (parseFloat(r.price)||0)*(parseFloat(r.qty)||0);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>
+        <select onchange="if(this.value){rows.find(x=>x.id==${r.id}).desc=this.value;this.closest('tr').querySelector('.desc-inp').value=this.value;this.value='';}" style="width:100%;background:var(--steel);border:1px solid var(--border);color:var(--mid);font-family:'DM Sans',sans-serif;font-size:.75rem;padding:.3rem .4rem;outline:none;margin-bottom:.3rem">${buildCatalogOptions()}</select>
+        <input type="text" class="desc-inp" value="${r.desc.replace(/"/g,'&quot;')}" placeholder="Or type custom description…"
+          style="width:100%;background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--white);font-family:'DM Sans',sans-serif;font-size:.82rem;padding:.25rem .3rem;outline:none"
+          oninput="rows.find(x=>x.id==${r.id}).desc=this.value">
+      </td>
+      <td><input type="number" min="0" step=".5" value="${r.qty}" style="width:100%;background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--white);font-family:'DM Mono',sans-serif;font-size:.82rem;padding:.25rem .3rem;outline:none;text-align:right"
+        oninput="rows.find(x=>x.id==${r.id}).qty=this.value;recalc();this.closest('tr').querySelector('.li-sub').textContent=fmt((parseFloat(this.value)||0)*(parseFloat(rows.find(x=>x.id==${r.id}).price)||0))"></td>
+      <td><input type="number" min="0" step=".01" value="${r.price}" placeholder="0.00" style="width:100%;background:transparent;border:none;border-bottom:1px solid var(--border);color:var(--white);font-family:'DM Mono',sans-serif;font-size:.82rem;padding:.25rem .3rem;outline:none;text-align:right"
+        oninput="rows.find(x=>x.id==${r.id}).price=this.value;recalc();this.closest('tr').querySelector('.li-sub').textContent=fmt((parseFloat(rows.find(x=>x.id==${r.id}).qty)||0)*(parseFloat(this.value)||0))"></td>
+      <td class="right"><span class="li-sub computed">${sub>0?fmt(sub):''}</span></td>
+      <td><button class="del-btn no-print" onclick="removeRow(${r.id})">✕</button></td>`;
+    tbody.appendChild(tr);
+  });
+  recalc();
+}
+
+function addUpcharge(desc='', amt='') { const id=++ucUid; upcharges.push({id,desc,amt}); renderUpcharges(); }
+function removeUpcharge(id) { upcharges=upcharges.filter(u=>u.id!==id); renderUpcharges(); }
+function renderUpcharges() {
+  const container = document.getElementById('upcharge-rows');
+  container.innerHTML = '';
+  upcharges.forEach(u => {
+    const div = document.createElement('div');
+    div.className = 'upcharge-row';
+    div.innerHTML = `
+      <input type="text" value="${u.desc}" placeholder="Description (e.g. Cast Iron Tear-Out…)" oninput="upcharges.find(x=>x.id==${u.id}).desc=this.value">
+      <input type="number" min="0" step=".01" value="${u.amt}" placeholder="0.00" oninput="upcharges.find(x=>x.id==${u.id}).amt=this.value;recalc()">
+      <button class="del-btn no-print" onclick="removeUpcharge(${u.id})">✕</button>`;
+    container.appendChild(div);
+  });
+  recalc();
+}
+
+function fmt(n) { return '$'+n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g,','); }
+
+function recalc() {
+  const base = parseFloat(document.getElementById('base-price').value)||0;
+  const ucTotal = upcharges.reduce((s,u)=>s+(parseFloat(u.amt)||0),0);
+  const liTotal = rows.reduce((s,r)=>(s+(parseFloat(r.price)||0)*(parseFloat(r.qty)||0)),0);
+  const subtotal = base+ucTotal+liTotal;
+  const discV = parseFloat(document.getElementById('disc-val').value)||0;
+  const discT = document.getElementById('disc-type').value;
+  const disc = discT==='pct' ? subtotal*(discV/100) : Math.min(discV,subtotal);
+  const total = subtotal-disc;
+  const depV = parseFloat(document.getElementById('dep-val').value)||0;
+  const depT = document.getElementById('dep-type').value;
+  const dep = depT==='pct' ? total*(depV/100) : Math.min(depV,total);
+  document.getElementById('t-base').textContent = fmt(base);
+  document.getElementById('t-upcharges-row').style.display = ucTotal>0?'':'none';
+  document.getElementById('t-upcharges').textContent = '+'+fmt(ucTotal);
+  document.getElementById('t-lineitems-row').style.display = liTotal>0?'':'none';
+  document.getElementById('t-lineitems').textContent = '+'+fmt(liTotal);
+  document.getElementById('t-discount').textContent = disc>0?'-'+fmt(disc):'—';
+  document.getElementById('t-total').textContent = fmt(total);
+  document.getElementById('t-deposit').textContent = dep>0?fmt(dep):'—';
+}
+
+function initDates() {
+  const today = new Date();
+  document.getElementById('est-date').textContent = today.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  const issued = document.getElementById('date-issued');
+  const valid = document.getElementById('date-valid');
+  issued.value = today.toISOString().slice(0,10);
+  const v = new Date(today); v.setDate(v.getDate()+30);
+  valid.value = v.toISOString().slice(0,10);
+}
+
+function clearForm() {
+  if(!confirm('Reset the form? All data will be lost.')) return;
+  upcharges=[]; ucUid=0; rows=[]; rowUid=0;
+  Object.keys(window).filter(k=>k.endsWith('Ref')).forEach(k=>window[k]=null);
+  renderUpcharges(); renderRows();
+  document.querySelectorAll('input[type=text],input[type=email],input[type=tel],textarea').forEach(el=>el.value='');
+  document.querySelectorAll('input[type=number]').forEach(el=>el.value='');
+  document.querySelectorAll('select').forEach(el=>el.selectedIndex=0);
+  document.getElementById('estimate-num').value='LAB-0001';
+  document.getElementById('est-display').textContent='LAB-0001';
+  ['shelf-finish-wrap','shelf-spacer','door-style-wrap','door-finish-wrap','seat-notes-wrap','upcharge-flag'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+  recalc();
+}
+
+let toastTimer;
+function toast(msg, type='success') {
+  const el = document.getElementById('toast');
+  clearTimeout(toastTimer);
+  el.textContent = msg;
+  el.className = 'toast show ' + type;
+  toastTimer = setTimeout(()=>el.classList.remove('show'), 4000);
+}
+</script>
+</body>
+</html>
