@@ -29,11 +29,11 @@
             <svg class="nav-chev" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 4l4 4 4-4"/></svg>
           </a>
           <ul class="nav-drop">
-            <li><a href="/services.html#zero-entry">Zero-Entry Showers</a></li>
-            <li><a href="/services.html#walk-in">Walk-In Showers</a></li>
-            <li><a href="/services.html#conversion">Tub-to-Shower Conversions</a></li>
-            <li><a href="/services.html#ada">ADA Bathroom Remodeling</a></li>
-            <li><a href="/services.html#aging">Aging-in-Place Bathrooms</a></li>
+            <li><a href="/zero-entry-showers">Zero-Entry Showers</a></li>
+            <li><a href="/walk-in-showers">Walk-In Showers</a></li>
+            <li><a href="/tub-to-shower-conversion">Tub-to-Shower Conversions</a></li>
+            <li><a href="/ada-bathroom-remodeling">ADA Bathroom Remodeling</a></li>
+            <li><a href="/aging-in-place-bathrooms">Aging-in-Place Bathrooms</a></li>
             <li><a href="/services.html#accessories">Safety Accessories</a></li>
           </ul>
         </li>
@@ -114,19 +114,17 @@
         <p class="ft-brand-p">Omaha's accessible bathroom specialist. Zero-entry showers, tub-to-shower conversions, and aging-in-place design — owner-installed, backed by a lifetime warranty.</p>
         <div class="ft-contact">
           <a href="tel:+14020000000">📞 (402) 000-0000</a>
-          <a href="mailto:trippentusa@gmail.com">✉ hello@levelaccessbaths.com</a>
+          <a href="mailto:hello@levelaccessbaths.com">✉ hello@levelaccessbaths.com</a>
           <a href="/about.html#service-area">📍 Omaha, NE &amp; Surrounding Areas</a>
         </div>
         <div class="ft-socials">
-          <a href="#" class="ft-social">Facebook ↗</a>
-          <a href="#" class="ft-social">Instagram ↗</a>
         </div>
       </div>
       <div class="ft-col">
         <h4>Solutions</h4>
         <ul>
-          <li><a href="/services.html">Zero-Entry Showers</a></li>
-          <li><a href="/services.html">Walk-In Showers</a></li>
+          <li><a href="/zero-entry-showers">Zero-Entry Showers</a></li>
+          <li><a href="/walk-in-showers">Walk-In Showers</a></li>
           <li><a href="/services.html">Tub-to-Shower</a></li>
           <li><a href="/services.html">ADA Remodeling</a></li>
           <li><a href="/services.html">Aging-in-Place</a></li>
@@ -156,7 +154,7 @@
       </div>
     </div>
     <div class="ft-bottom">
-      <p>© 2024 Level Access Baths. All rights reserved. · <a href="/privacy.html" style="color:rgba(255,255,255,.3);transition:color .2s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,.3)'">Privacy Policy</a></p>
+      <p>© 2026 Level Access Baths. All rights reserved. · <a href="/privacy.html" style="color:rgba(255,255,255,.3);transition:color .2s" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='rgba(255,255,255,.3)'">Privacy Policy</a></p>
       <div class="ft-badge">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
         Lifetime Leak-Free Warranty · Omaha, NE
