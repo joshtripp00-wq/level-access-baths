@@ -9,14 +9,7 @@
   <nav id="shared-nav">
     <div class="nav-inner">
       <a href="/index.html" class="nav-logo" aria-label="Level Access Baths Home">
-        <svg width="80" height="36" viewBox="0 0 120 60" aria-hidden="true">
-          <path d="M6 8 L6 46 Q6 48 8 48 L20 48" stroke="#1a2744" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M30 48 L48 10 L66 48" stroke="#c5a55a" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-          <line x1="36" y1="35" x2="60" y2="35" stroke="#c5a55a" stroke-width="3.5" stroke-linecap="round"/>
-          <path d="M76 8 L76 48" stroke="#1a2744" stroke-width="5" fill="none" stroke-linecap="round"/>
-          <path d="M76 8 L92 8 Q104 8 104 18 Q104 26 94 27" stroke="#1a2744" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M76 27 L96 27 Q110 27 110 38 Q110 48 96 48 L76 48" stroke="#1a2744" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+        <img src="/logo-monogram-navy.png" alt="LAB" width="78" height="30" style="display:block;flex-shrink:0">
         <div class="nav-logo-divider"></div>
         <div class="nav-logo-text">
           <span class="brand">LEVEL ACCESS BATHS</span>
@@ -102,15 +95,8 @@
   <footer id="shared-footer">
     <div class="footer-grid">
       <div>
-        <svg width="96" height="44" viewBox="0 0 120 60" aria-label="Level Access Baths">
-          <path d="M6 8 L6 46 Q6 48 8 48 L20 48" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M30 48 L48 10 L66 48" stroke="#c5a55a" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-          <line x1="36" y1="35" x2="60" y2="35" stroke="#c5a55a" stroke-width="3.5" stroke-linecap="round"/>
-          <path d="M76 8 L76 48" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round"/>
-          <path d="M76 8 L92 8 Q104 8 104 18 Q104 26 94 27" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M76 27 L96 27 Q110 27 110 38 Q110 48 96 48 L76 48" stroke="#ffffff" stroke-width="5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-        <div class="ft-brand-name">Level Access Baths</div>
+        <img src="/logo-full-reversed.png" alt="Level Access Baths" style="width:180px;height:auto;display:block;margin-bottom:4px">
+        
         <p class="ft-brand-p">Omaha's accessible bathroom specialist. Zero-entry showers, tub-to-shower conversions, and aging-in-place design — owner-installed, backed by a lifetime warranty.</p>
         <div class="ft-contact">
           <a href="tel:+14020000000">📞 (402) 000-0000</a>
