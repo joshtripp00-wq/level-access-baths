@@ -99,7 +99,7 @@
         
         <p class="ft-brand-p">Omaha's accessible bathroom specialist. Zero-entry showers, tub-to-shower conversions, and aging-in-place design — owner-installed, backed by a lifetime warranty.</p>
         <div class="ft-contact">
-          <a href="tel:+14020000000">📞 (402) 000-0000</a>
+          <a href="tel:+14022348757">📞 (402) 234-8757</a>
           <a href="mailto:hello@levelaccessbaths.com">✉ hello@levelaccessbaths.com</a>
           <a href="/about.html#service-area">📍 Omaha, NE &amp; Surrounding Areas</a>
         </div>
